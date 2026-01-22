@@ -1,0 +1,26 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.0
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck
+        run: bunx turbo run check-types --filter=./apps/auth --filter=./packages/auth-sdk --filter=./apps/examples/react
+
+      - name: Build
+        run: bunx turbo run build --filter=./packages/auth-sdk --filter=./apps/examples/react --filter=./apps/docs
+

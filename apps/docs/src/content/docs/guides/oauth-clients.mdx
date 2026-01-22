@@ -1,0 +1,44 @@
+---
+title: OAuth Clients
+description: Create and manage OAuth clients from the admin dashboard.
+---
+
+## Only one way to create clients
+
+OAuth clients are created from the Orbit Auth admin dashboard.
+
+- Go to `http://localhost:5000/admin`
+- Open OAuth Clients
+- Create Client
+
+Client creation scripts are intentionally removed to keep one consistent, auditable path.
+
+## Global password policy
+
+“Compromised Password Protection” is configured globally from the admin settings page.
+
+## Trusted origins (CORS)
+
+To let a frontend call the auth server, add its origin to `TRUSTED_ORIGINS`:
+
+```txt
+TRUSTED_ORIGINS=http://localhost:3000,http://localhost:4000,https://app.example.com
+```
+
+Restart the auth server after changing environment variables.
+
+## Redirect URIs
+
+Redirect URIs must match exactly (scheme/host/path). Common examples:
+
+- React SPA: `http://localhost:3000/`
+- Next.js app callback route: `http://localhost:3000/api/auth/oauth2/callback/your-provider`
+
+## Scopes
+
+Typical scopes:
+
+- `openid`
+- `profile`
+- `email`
+- `offline_access` (refresh tokens)

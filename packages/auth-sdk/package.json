@@ -1,0 +1,101 @@
+{
+  "name": "@orbit-kit/auth-sdk",
+  "description": "A auth sdk component for Convex.",
+  "repository": "github:orbit-kit/auth",
+  "homepage": "https://github.com/orbit-kit/auth#readme",
+  "bugs": {
+    "url": "https://github.com/orbit-kit/auth/issues"
+  },
+  "version": "0.1.2",
+  "license": "Apache-2.0",
+  "keywords": [
+    "convex",
+    "component"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "scripts": {
+    "dev": "run-p -r 'dev:*'",
+    "dev:build": "chokidar 'tsconfig*.json' 'src/**/*.ts' -i '**/*.test.ts' -c 'npm run build:codegen' --initial",
+    "predev": "path-exists .env.local dist || (npm run build && convex dev --once)",
+    "build": "tsc --project ./tsconfig.build.json",
+    "build:codegen": "npx convex codegen --component-dir ./src/component && npm run build",
+    "build:clean": "rm -rf dist *.tsbuildinfo && npm run build:codegen",
+    "typecheck": "tsc --noEmit",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint .",
+    "preversion": "bun install --frozen-lockfile && bunx turbo run build --filter=@orbit-kit/auth-sdk && bunx turbo run check-types --filter=@orbit-kit/auth-sdk",
+    "alpha": "npm version prerelease --preid alpha && npm publish --tag alpha && git push --follow-tags",
+    "release": "npm version patch && npm publish && git push --follow-tags",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/client/index.d.ts",
+      "default": "./dist/client/index.js"
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "default": "./dist/react/index.js"
+    },
+    "./api": {
+      "types": "./dist/api/index.d.ts",
+      "default": "./dist/api/index.js"
+    },
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "default": "./dist/core/index.js"
+    },
+    "./_generated/component.js": {
+      "types": "./dist/component/_generated/component.d.ts"
+    },
+    "./_generated/component": {
+      "types": "./dist/component/_generated/component.d.ts"
+    },
+    "./convex.config.js": {
+      "types": "./dist/component/convex.config.d.ts",
+      "default": "./dist/component/convex.config.js"
+    },
+    "./convex.config": {
+      "types": "./dist/component/convex.config.d.ts",
+      "default": "./dist/component/convex.config.js"
+    }
+  },
+  "peerDependencies": {
+    "react": "^18.3.1 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@convex-dev/eslint-plugin": "^1.1.1",
+    "@edge-runtime/vm": "^5.0.0",
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "9.39.1",
+    "@types/node": "^24.10.4",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.1",
+    "chokidar-cli": "3.0.0",
+    "convex": "1.31.0",
+    "cpy-cli": "^6.0.0",
+    "eslint": "9.39.1",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^17.0.0",
+    "npm-run-all2": "8.0.4",
+    "path-exists-cli": "2.0.0",
+    "pkg-pr-new": "^0.0.60",
+    "prettier": "3.6.2",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.47.0",
+    "vite": "7.2.6"
+  },
+  "types": "./dist/client/index.d.ts",
+  "module": "./dist/client/index.js"
+}

@@ -1,0 +1,24 @@
+---
+title: NetworkError after sign-in
+description: Fix redirect handling when signing in on the auth server.
+---
+
+## Symptom
+
+After email/password sign-in, the server succeeds but the browser shows:
+
+- `NetworkError when attempting to fetch resource`
+
+## Why it happens
+
+Some sign-in endpoints respond with redirects. If a client `fetch()` follows the redirect automatically, you can end up trying to parse a non-JSON response.
+
+## What Orbit Auth does
+
+The auth server’s internal client uses a custom fetch implementation that:
+
+- Uses manual redirect for the sign-in/sign-up POST endpoints
+- Treats redirect responses as success
+
+See: [auth-client.ts](file:///d:/orbit-auth/auth-private/apps/auth/lib/auth-client.ts)
+

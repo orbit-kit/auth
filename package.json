@@ -1,0 +1,24 @@
+{
+  "name": "orbit-auth-monorepo",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "dev:auth": "turbo run dev --filter=./apps/auth",
+    "dev:auth-sdk": "turbo run dev --filter=./packages/auth-sdk",
+    "dev:docs": "turbo run dev --filter=./apps/docs",
+    "dev:example-nextjs-betterauth": "turbo run dev --filter=./apps/examples/nextjs-betterauth",
+    "dev:example-react": "turbo run dev --filter=./apps/examples/react",
+    "lint": "turbo run lint",
+    "check-types": "turbo run check-types"
+  },
+  "devDependencies": {
+    "turbo": "^2.7.4"
+  },
+  "packageManager": "bun@1.3.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "apps/examples/*"
+  ]
+}

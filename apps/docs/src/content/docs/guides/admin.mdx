@@ -1,0 +1,105 @@
+---
+title: Admin
+description: User management with the Better Auth admin plugin.
+---
+
+## What this is
+
+Orbit Auth enables the Better Auth Admin plugin so you can manage users and sessions:
+
+- Create users
+- List users (filter/search/paginate)
+- Set roles
+- Ban/unban
+- Revoke sessions
+- Impersonate / stop impersonating
+- Remove users
+
+## Server setup (already enabled)
+
+The auth server already includes:
+
+- `admin()` in the Better Auth plugin list
+- `adminClient()` in the auth client
+
+See:
+
+- [auth.ts](file:///d:/orbit-auth/auth-private/apps/auth/lib/auth.ts)
+- [auth-client.ts](file:///d:/orbit-auth/auth-private/apps/auth/lib/auth-client.ts)
+
+## Roles
+
+By default, Orbit Auth uses:
+
+- `admin`
+- `user`
+
+The first seeded user is an admin (role is set in the seed script).
+
+## Database / schema
+
+Orbit Auth stores role + ban fields on the user record (already included in the Drizzle schema).
+
+If you’re changing the schema, run migrations from `apps/auth`:
+
+```bash
+npm run db:generate
+npm run db:migrate
+```
+
+## Usage
+
+Admin operations require an authenticated admin session.
+
+## Global settings
+
+Global feature flags (like compromised password protection and Google sign-in) live in the admin settings page:
+
+- `http://localhost:5000/admin/settings`
+
+### Client-side (inside the auth server app)
+
+Orbit Auth’s admin dashboard uses the Better Auth client plugin:
+
+```ts
+const { data, error } = await authClient.admin.listUsers({
+	query: {
+		limit: 50,
+		offset: 0,
+		sortBy: "createdAt",
+		sortDirection: "desc",
+	},
+});
+```
+
+### Server-side (direct API)
+
+In Next.js route handlers / server actions you can call:
+
+```ts
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
+
+const result = await auth.api.listUsers(
+	{
+		query: { limit: 50, offset: 0 },
+	},
+	{ headers: await headers() },
+);
+```
+
+### Using the Orbit SDK helper (server-to-server)
+
+If you want to call the admin endpoints from another app (with cookies), use:
+
+```ts
+import { createOrbitAdminClient } from "@orbit-kit/auth-sdk";
+
+const admin = createOrbitAdminClient({
+	baseURL: "https://auth.yourdomain.com",
+});
+
+const { users, total } = await admin.listUsers({ limit: 20, offset: 0 });
+```
+
+This uses `credentials: "include"` and expects the request to already have the right session cookies for the auth server domain.

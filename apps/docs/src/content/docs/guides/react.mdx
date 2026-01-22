@@ -1,0 +1,85 @@
+---
+title: React Install
+description: Install the SDK and wire up OAuth sign-in for a React app.
+---
+
+## Prerequisites
+
+- A running Orbit Auth server.
+- An OAuth client created in the Orbit Auth admin dashboard.
+
+## Create an OAuth client
+
+- Open your auth server admin dashboard: `http://localhost:5000/admin`
+- Go to OAuth Clients → Create Client
+- Add your app’s redirect URI (for local dev, something like `http://localhost:3000/`)
+- Copy the Client ID (and Client Secret if you created a confidential client)
+
+## Configure your React app
+
+Add these environment variables to your React app:
+
+```txt
+VITE_ORBIT_AUTH_BASE_URL=http://localhost:5000
+VITE_ORBIT_AUTH_CLIENT_ID=your_client_id
+```
+
+If you created a confidential client (server-side apps only), also add:
+
+```txt
+VITE_ORBIT_AUTH_CLIENT_SECRET=your_client_secret
+```
+
+## Install the SDK
+
+```bash
+npm i @orbit-kit/auth-sdk
+```
+
+## Add a minimal auth flow
+
+Create a client:
+
+```ts
+import { createOrbitAuthClient } from "@orbit-kit/auth-sdk/core";
+
+export const orbit = createOrbitAuthClient({
+	baseURL: import.meta.env.VITE_ORBIT_AUTH_BASE_URL,
+	clientId: import.meta.env.VITE_ORBIT_AUTH_CLIENT_ID,
+	storage: "session",
+});
+```
+
+Start sign-in (redirects to the auth server):
+
+```ts
+await orbit.signIn({
+	scopes: ["openid", "profile", "email"],
+});
+```
+
+Handle the callback after redirect:
+
+```ts
+const session = await orbit.handleCallback();
+if (session) {
+	console.log("Signed in as:", session.user.email);
+}
+```
+
+Load the session on refresh:
+
+```ts
+const session = await orbit.getStoredSession();
+```
+
+Sign out:
+
+```ts
+await orbit.signOut();
+```
+
+## Common gotchas
+
+- Add your React dev origin to `TRUSTED_ORIGINS` on the auth server (comma-separated), restart the server.
+- Use a public client for SPA/native-style apps. Confidential clients should not expose secrets in the browser.

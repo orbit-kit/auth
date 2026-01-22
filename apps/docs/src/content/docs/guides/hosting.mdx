@@ -1,0 +1,58 @@
+---
+title: Hosting
+description: Run Orbit Auth with Postgres and a stable public URL.
+---
+
+## What you deploy
+
+- The auth server is a Next.js app in `apps/auth`.
+- It requires a Postgres database.
+
+## Required environment variables
+
+On your host, set:
+
+```txt
+DATABASE_URL=postgres://...
+BETTER_AUTH_URL=https://auth.yourdomain.com
+BETTER_AUTH_SECRET=replace_with_a_long_random_secret
+TRUSTED_ORIGINS=https://app.yourdomain.com,https://admin.yourdomain.com
+```
+
+Notes:
+
+- `BETTER_AUTH_URL` must be the externally reachable URL of the auth server (no trailing slash).
+- `TRUSTED_ORIGINS` should contain every frontend origin that will call the auth server.
+
+## Deploy steps
+
+1. Install dependencies
+2. Run database migrations
+3. Build the app
+4. Start the server
+
+Typical commands (from the repo root):
+
+```bash
+bun install
+cd apps/auth
+npm run db:migrate
+npm run build
+npm run start
+```
+
+## Initial admin user
+
+Create the first admin user using the seed script:
+
+```bash
+cd apps/auth
+npm run seed
+```
+
+This creates an admin from `ADMIN_EMAIL` and `ADMIN_PASSWORD` if they are set.
+
+## HTTPS and reverse proxies
+
+- Put the auth server behind HTTPS (most hosts provide this).
+- If you run behind a reverse proxy, make sure it forwards the original host/proto correctly so redirects and cookies behave.

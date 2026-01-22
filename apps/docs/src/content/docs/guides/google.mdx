@@ -1,0 +1,71 @@
+---
+title: Google
+description: Enable Google sign-in with Better Auth.
+---
+
+## Get your Google credentials
+
+To use Google as a social provider, create a project in Google Cloud Console and generate an OAuth client ID.
+
+In Google Cloud Console → APIs & Services → Credentials:
+
+- Create Credentials → OAuth client ID
+- Choose Web application
+- Add authorized redirect URIs:
+  - `http://localhost:5000/api/auth/callback/google` (local)
+  - `https://auth.your-domain.com/api/auth/callback/google` (production)
+
+These steps avoid common issues like `redirect_uri_mismatch`.
+
+## Configure environment variables
+
+Google credentials are **server secrets**. Set them in your hosting provider’s secret manager / environment settings (not in the dashboard UI).
+
+Examples:
+
+- Vercel: Project → Settings → Environment Variables
+- SST: `sst secrets set ...`
+- VPS/Docker: process env (systemd, docker compose, etc.)
+
+On the auth server set:
+
+```txt
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+BETTER_AUTH_URL=https://auth.your-domain.com
+```
+
+`BETTER_AUTH_URL` must match your public auth server URL or Google OAuth redirects will fail in production.
+
+## Turn it on
+
+Enable Google globally from the admin settings page:
+
+- `http://localhost:5000/admin/settings`
+
+The Google button only appears when:
+
+- The global “Google Sign-In” toggle is enabled
+- `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are configured on the server
+
+## Usage
+
+On the auth server sign-in page, click “Continue with Google”.
+
+If you want to request additional Google scopes later (example: Drive file):
+
+```ts
+await authClient.linkSocial({
+	provider: "google",
+	scopes: ["https://www.googleapis.com/auth/drive.file"],
+});
+```
+
+## Always ask to select an account
+
+Orbit Auth config uses:
+
+- `prompt: "select_account consent"`
+- `accessType: "offline"`
+
+This improves chances of receiving a refresh token.

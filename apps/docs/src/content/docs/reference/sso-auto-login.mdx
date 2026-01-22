@@ -1,0 +1,28 @@
+---
+title: SSO / Auto-login
+description: Use the session-check endpoint to trigger OAuth automatically.
+---
+
+## Endpoint
+
+Orbit Auth exposes a cross-origin session check endpoint:
+
+```txt
+GET /api/auth/session-check
+```
+
+It returns minimal data:
+
+- `authenticated`
+- `user.id`, `user.email`, `user.name` (when authenticated)
+
+## Typical client flow
+
+1. Your app checks its own session (if any).
+2. If not logged in locally, call the auth server’s session-check endpoint with credentials.
+3. If `authenticated: true`, start the OAuth flow.
+
+## CORS
+
+Allow your client origin by adding it to `TRUSTED_ORIGINS` on the auth server and restarting.
+

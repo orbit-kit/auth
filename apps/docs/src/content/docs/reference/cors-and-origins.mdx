@@ -1,0 +1,28 @@
+---
+title: CORS and Trusted Origins
+description: Fix cross-origin requests and session cookies.
+---
+
+## The rule
+
+If a browser app calls the auth server from a different origin, that origin must be trusted.
+
+Set `TRUSTED_ORIGINS` on the auth server to a comma-separated list of allowed origins:
+
+```txt
+TRUSTED_ORIGINS=http://localhost:3000,http://localhost:5173,https://app.example.com
+```
+
+Restart the auth server after changing environment variables.
+
+## Common symptoms
+
+- Browser console shows CORS errors
+- Session cookies are missing
+- `userinfo` requests fail when called from a client app
+
+## Notes
+
+- During development, localhost origins are allowed.
+- In production, make sure you include the exact scheme + host (and port if applicable).
+

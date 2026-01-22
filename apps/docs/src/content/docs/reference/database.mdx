@@ -1,0 +1,32 @@
+---
+title: Database Setup
+description: Configure Postgres and run Drizzle migrations.
+---
+
+## Required env var
+
+The auth server requires `DATABASE_URL`:
+
+```txt
+DATABASE_URL=postgres://user:pass@host:5432/dbname
+```
+
+## Migrations
+
+From `apps/auth`:
+
+```bash
+npm run db:generate
+npm run db:migrate
+```
+
+## Seed the first admin
+
+From `apps/auth`:
+
+```bash
+npm run seed
+```
+
+This creates an admin user if one does not already exist.
+
