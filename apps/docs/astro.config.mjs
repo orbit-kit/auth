@@ -2,10 +2,14 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
+const githubRepoName = process.env.GITHUB_REPOSITORY?.split('/')[1];
+const inferredBase =
+	githubRepoName && !githubRepoName.endsWith('.github.io') ? `/${githubRepoName}` : '/';
+
 // https://astro.build/config
 export default defineConfig({
 	site: process.env.DOCS_SITE || undefined,
-	base: process.env.DOCS_BASE || '/',
+	base: process.env.DOCS_BASE || inferredBase,
 	integrations: [
 		starlight({
 			title: 'Orbit Auth',

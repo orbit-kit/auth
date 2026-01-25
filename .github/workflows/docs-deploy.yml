@@ -37,7 +37,7 @@ jobs:
         env:
           DOCS_SITE: ${{ steps.pages.outputs.origin }}
           DOCS_BASE: ${{ steps.pages.outputs.base_path }}
-        run: bunx turbo run build --filter=./apps/docs
+        run: bunx turbo run build --filter=./apps/docs --force
 
       - uses: actions/upload-pages-artifact@v3
         with:
