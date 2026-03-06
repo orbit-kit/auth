@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, type Resolver } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod/v4";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,9 @@ const signInSchema = z.object({
 });
 
 type SignInFormValues = z.infer<typeof signInSchema>;
+const signInResolver = zodResolver(
+	signInSchema as unknown as Parameters<typeof zodResolver>[0],
+) as unknown as Resolver<SignInFormValues>;
 
 interface SignInFormProps {
 	onSuccess?: () => void;
@@ -41,7 +44,7 @@ export function SignInForm({
 	const [loading, setLoading] = useState(false);
 
 	const form = useForm<SignInFormValues>({
-		resolver: zodResolver(signInSchema),
+		resolver: signInResolver,
 		defaultValues: {
 			email: "",
 			password: "",

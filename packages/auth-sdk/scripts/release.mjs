@@ -33,9 +33,29 @@ function readVersion() {
   return JSON.parse(readFileSync(packageJsonPath, "utf8")).version;
 }
 
+function hasStagedChanges() {
+  try {
+    execFileSync("git", ["diff", "--cached", "--quiet", "--exit-code"], {
+      cwd: repoRoot,
+      stdio: "ignore",
+    });
+    return false;
+  } catch (error) {
+    if (error instanceof Error && "status" in error && error.status === 1) {
+      return true;
+    }
+
+    throw error;
+  }
+}
+
 function finalizeRelease(version) {
   run("git", ["add", packageJsonGitPath], repoRoot);
-  run("git", ["commit", "-m", `release(auth-sdk): v${version}`], repoRoot);
+
+  if (hasStagedChanges()) {
+    run("git", ["commit", "-m", `release(auth-sdk): v${version}`], repoRoot);
+  }
+
   run("git", ["tag", `v${version}`], repoRoot);
   run("git", ["push", "--follow-tags"], repoRoot);
 }
