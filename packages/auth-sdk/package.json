@@ -1,7 +1,10 @@
 {
   "name": "@orbit-kit/auth-sdk",
   "description": "A auth sdk component for Convex.",
-  "repository": "github:orbit-kit/auth",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/orbit-kit/auth.git"
+  },
   "homepage": "https://github.com/orbit-kit/auth#readme",
   "bugs": {
     "url": "https://github.com/orbit-kit/auth/issues"

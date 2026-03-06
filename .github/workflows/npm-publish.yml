@@ -68,4 +68,9 @@ jobs:
         working-directory: packages/auth-sdk
         env:
           NPM_CONFIG_PROVENANCE: true
-        run: npm publish --access public --provenance
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          DIST_TAG=$(node -p "const version = require('./package.json').version; const prerelease = version.split('-')[1]; prerelease ? prerelease.split('.')[0] : 'latest'")
+
+          echo "Publishing version $PKG_VERSION with npm tag '$DIST_TAG'"
+          npm publish --access public --provenance --tag "$DIST_TAG"
