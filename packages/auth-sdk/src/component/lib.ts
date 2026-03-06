@@ -1,4 +1,4 @@
-import { query, action, mutation } from "./_generated/server";
+import { query, action, mutation } from "./_generated/server.js";
 
 export const getUser = query({
 	args: {},

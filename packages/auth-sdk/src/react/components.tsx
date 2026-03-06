@@ -1,7 +1,7 @@
 import { useMemo, type ReactNode } from "react";
-import type { OrbitAuthConfig, SignInOptions } from "../core/types";
-import { createOrbitAuthClient } from "../core/client";
-import { OrbitAuthProvider, useOrbitAuth } from "./hooks";
+import type { OrbitAuthConfig, SignInOptions } from "../core/types.js";
+import { createOrbitAuthClient } from "../core/client.js";
+import { OrbitAuthProvider, useOrbitAuth } from "./hooks.js";
 
 export type OrbitAuthWidgetProps = Omit<OrbitAuthConfig, "clientSecret"> & {
 	clientSecret?: string;

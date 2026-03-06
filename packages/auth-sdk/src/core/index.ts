@@ -1,3 +1,3 @@
-export { createOrbitAuthClient, OrbitAuthClient } from "./client";
-export * from "./types";
-export { createOrbitAdminClient } from "./admin";
+export { createOrbitAuthClient, OrbitAuthClient } from "./client.js";
+export * from "./types.js";
+export { createOrbitAdminClient } from "./admin.js";

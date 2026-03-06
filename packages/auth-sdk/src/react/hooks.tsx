@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
-import type { OrbitAuthClient } from "../core/client";
-import type { OrbitAuthSession, SignInOptions } from "../core/types";
+import type { OrbitAuthClient } from "../core/client.js";
+import type { OrbitAuthSession, SignInOptions } from "../core/types.js";
 
 interface OrbitAuthContextValue {
 	client: OrbitAuthClient;

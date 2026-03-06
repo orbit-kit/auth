@@ -2,6 +2,12 @@ name: npm-publish
 
 on:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish @orbit-kit/auth-sdk to npm
+        required: false
+        default: false
+        type: boolean
   push:
     tags:
       - "v*"
@@ -52,7 +58,13 @@ jobs:
       - name: Build SDK package
         run: bunx turbo run build --filter=@orbit-kit/auth-sdk
 
+      - name: Verify package contents
+        if: github.event_name == 'workflow_dispatch' && inputs.publish != true
+        working-directory: packages/auth-sdk
+        run: npm pack --dry-run
+
       - name: Publish @orbit-kit/auth-sdk
+        if: github.event_name != 'workflow_dispatch' || inputs.publish == true
         working-directory: packages/auth-sdk
         env:
           NPM_CONFIG_PROVENANCE: true

@@ -1,8 +1,8 @@
-import type { OrbitAuthConfig, OrbitAuthSession, OrbitAuthUser } from "../core/types";
-import { createOrbitAuthClient, OrbitAuthClient } from "../core/client";
+import type { OrbitAuthConfig, OrbitAuthSession, OrbitAuthUser } from "../core/types.js";
+import { createOrbitAuthClient, OrbitAuthClient } from "../core/client.js";
 
 export { createOrbitAuthClient, OrbitAuthClient };
-export * from "../core/types";
+export * from "../core/types.js";
 
 export interface OrbitAuthClientConfig {
 	baseURL: string;

@@ -1,5 +1,5 @@
-import type { OrbitAuthConfig, OrbitAuthTokens, SignInOptions, SignInResult, OrbitAuthUser, OrbitAuthSession } from "./types";
-import { OrbitAuthError, ORBIT_AUTH_ERROR_CODES } from "./types";
+import type { OrbitAuthConfig, OrbitAuthTokens, SignInOptions, SignInResult, OrbitAuthUser, OrbitAuthSession } from "./types.js";
+import { OrbitAuthError, ORBIT_AUTH_ERROR_CODES } from "./types.js";
 
 const DEFAULT_SCOPES = ["openid", "profile", "email"];
 const DEFAULT_OAUTH_PATH_PREFIX = "/api/auth/oauth2";
