@@ -1,6 +1,6 @@
 # Orbit Auth (Early Alpha)
 
-Orbit Auth is a self-hosted authentication server + OAuth 2.1 provider built on **Next.js** and **Better Auth**, with an SDK and example clients.
+Orbit Auth is a self-hosted authentication server + OAuth 2.1 provider built on **TanStack Start** and **Better Auth**, with an SDK and example clients.
 
 > [!WARNING]
 > Early alpha / proof of concept.
@@ -10,7 +10,7 @@ Orbit Auth is a self-hosted authentication server + OAuth 2.1 provider built on 
 
 ## What’s in this repo
 
-- `apps/auth`: the auth server (admin dashboard, OAuth provider, user management)
+- `apps/auth`: the auth server (TanStack Start admin dashboard, OAuth provider, user management)
 - `packages/auth-sdk`: Orbit Auth SDK (core + React helpers)
 - `apps/examples/nextjs-betterauth`: Next.js example client
 - `apps/examples/react`: React (Vite) example client
@@ -44,8 +44,8 @@ Optional:
 From `apps/auth`:
 
 ```bash
-npm run db:migrate
-npm run seed
+bun run db:migrate
+bun run seed
 ```
 
 ### 4) Run the auth server
@@ -53,7 +53,7 @@ npm run seed
 From repo root:
 
 ```bash
-npm run dev:auth
+bun run dev:auth
 ```
 
 Open:
@@ -73,13 +73,13 @@ In the auth server admin UI:
 #### Next.js example
 
 ```bash
-npm run dev:example-nextjs-betterauth
+bun run dev:example-nextjs-betterauth
 ```
 
 #### React example
 
 ```bash
-npm run dev:example-react
+bun run dev:example-react
 ```
 
 ## Docs
@@ -87,7 +87,7 @@ npm run dev:example-react
 Start the docs site:
 
 ```bash
-npm run dev:docs
+bun run dev:docs
 ```
 
 ## Contributing / Security

@@ -1,7 +1,7 @@
 import { betterAuth, type BetterAuthOptions } from "better-auth";
 import { admin, jwt } from "better-auth/plugins";
-import { nextCookies } from "better-auth/next-js";
 import { openAPI } from "better-auth/plugins";
+import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { oauthProvider } from "@better-auth/oauth-provider";
 import { db, schema } from "./db";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
@@ -86,7 +86,6 @@ const authOptions = {
 	],
 	plugins: [
 		openAPI(),
-		nextCookies(),
 		admin(),
 		orbitHaveIBeenPwned(),
 		// JWT plugin is required for OAuth provider
@@ -107,6 +106,7 @@ const authOptions = {
 			// Allow unauthenticated client registration for public clients (MCP agents)
 			allowUnauthenticatedClientRegistration: true,
 		}),
+		tanstackStartCookies(),
 	],
 	// Trusted origins are configured via TRUSTED_ORIGINS environment variable
 	// This makes the auth server work with any number of OAuth clients

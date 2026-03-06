@@ -20,7 +20,7 @@ Copy `.env.example` to `.env.local` and set:
 ```bash
 cd apps/examples/nextjs-betterauth
 bun install
-npm run dev
+bun run dev
 ```
 
 Open `http://localhost:3000`.

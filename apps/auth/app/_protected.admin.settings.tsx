@@ -1,16 +1,101 @@
-"use client";
-
 import { useEffect, useState } from "react";
-import { Toaster, toast } from "sonner";
+import { createFileRoute } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
+import { Loader2, Settings } from "lucide-react";
+import { toast } from "sonner";
+import { isAdminRole } from "@/lib/auth-api";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
-import { Loader2, Settings } from "lucide-react";
-import { getGlobalSettings, updateGlobalSettings } from "./actions";
-import { Input } from "@/components/ui/input";
 
-export default function AdminSettingsPage() {
+type GlobalSettings = {
+	hibpPasswordsEnabled: boolean;
+	googleEnabled: boolean;
+	showLogo: boolean;
+	brandName: string;
+};
+
+const getGlobalSettings = createServerFn({ method: "GET" }).handler(async (): Promise<{
+	success: boolean;
+	data?: GlobalSettings;
+	error?: string;
+}> => {
+	try {
+		const [{ auth }, { getRequestHeaders }, { getFeatureFlagWithDefault, getSystemSetting }] =
+			await Promise.all([
+				import("@/lib/auth"),
+				import("@tanstack/react-start/server"),
+				import("@/lib/setup"),
+			]);
+		const session = await auth.api.getSession({
+			headers: getRequestHeaders(),
+		});
+
+		if (!session?.user || !isAdminRole((session.user as { role?: unknown }).role)) {
+			return { success: false, error: "Not authorized" };
+		}
+
+		const [hibpPasswordsEnabled, googleEnabled, showLogo, brandName] = await Promise.all([
+			getFeatureFlagWithDefault("hibp_passwords", true),
+			getFeatureFlagWithDefault("oauth_google", false),
+			getFeatureFlagWithDefault("show_logo", true),
+			getSystemSetting("brand_name", "Orbit Auth"),
+		]);
+
+		return {
+			success: true,
+			data: {
+				hibpPasswordsEnabled,
+				googleEnabled,
+				showLogo,
+				brandName,
+			},
+		};
+	} catch (error: unknown) {
+		const message = error instanceof Error ? error.message : "Failed to load settings";
+		return { success: false, error: message };
+	}
+});
+
+const updateGlobalSettings = createServerFn({ method: "POST" })
+	.inputValidator((data: GlobalSettings) => data)
+	.handler(async ({ data }): Promise<{ success: boolean; error?: string }> => {
+		try {
+			const [{ auth }, { getRequestHeaders }, { setFeatureFlag, setSystemSetting }] =
+				await Promise.all([
+					import("@/lib/auth"),
+					import("@tanstack/react-start/server"),
+					import("@/lib/setup"),
+				]);
+			const session = await auth.api.getSession({
+				headers: getRequestHeaders(),
+			});
+
+			if (!session?.user || !isAdminRole((session.user as { role?: unknown }).role)) {
+				return { success: false, error: "Not authorized" };
+			}
+
+			await Promise.all([
+				setFeatureFlag("hibp_passwords", data.hibpPasswordsEnabled, session.user.id),
+				setFeatureFlag("oauth_google", data.googleEnabled, session.user.id),
+				setFeatureFlag("show_logo", data.showLogo, session.user.id),
+				setSystemSetting("brand_name", data.brandName, session.user.id, "Auth server display name"),
+			]);
+
+			return { success: true };
+		} catch (error: unknown) {
+			const message = error instanceof Error ? error.message : "Failed to update settings";
+			return { success: false, error: message };
+		}
+	});
+
+export const Route = createFileRoute("/_protected/admin/settings")({
+	component: AdminSettingsPage,
+});
+
+function AdminSettingsPage() {
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
 	const [hibpPasswordsEnabled, setHibpPasswordsEnabled] = useState(true);
@@ -20,12 +105,18 @@ export default function AdminSettingsPage() {
 
 	useEffect(() => {
 		let mounted = true;
+
 		(async () => {
 			setLoading(true);
 			try {
 				const result = await getGlobalSettings();
-				if (!result.success || !result.data) throw new Error(result.error || "Failed to load settings");
-				if (!mounted) return;
+				if (!result.success || !result.data) {
+					throw new Error(result.error || "Failed to load settings");
+				}
+				if (!mounted) {
+					return;
+				}
+
 				setHibpPasswordsEnabled(result.data.hibpPasswordsEnabled);
 				setGoogleEnabled(result.data.googleEnabled);
 				setShowLogo(result.data.showLogo);
@@ -34,9 +125,12 @@ export default function AdminSettingsPage() {
 				const message = error instanceof Error ? error.message : "Failed to load settings";
 				toast.error(message);
 			} finally {
-				if (mounted) setLoading(false);
+				if (mounted) {
+					setLoading(false);
+				}
 			}
 		})();
+
 		return () => {
 			mounted = false;
 		};
@@ -46,12 +140,16 @@ export default function AdminSettingsPage() {
 		setSaving(true);
 		try {
 			const result = await updateGlobalSettings({
-				hibpPasswordsEnabled,
-				googleEnabled,
-				showLogo,
-				brandName,
+				data: {
+					hibpPasswordsEnabled,
+					googleEnabled,
+					showLogo,
+					brandName,
+				},
 			});
-			if (!result.success) throw new Error(result.error || "Failed to save");
+			if (!result.success) {
+				throw new Error(result.error || "Failed to save");
+			}
 			toast.success("Settings updated");
 		} catch (error: unknown) {
 			const message = error instanceof Error ? error.message : "Failed to save";
@@ -62,12 +160,11 @@ export default function AdminSettingsPage() {
 	};
 
 	return (
-		<div className="container mx-auto p-4 space-y-8">
-			<Toaster richColors />
+		<div className="container mx-auto space-y-8 p-4">
 			<Card>
 				<CardHeader className="flex flex-row items-center justify-between">
 					<div>
-						<CardTitle className="text-2xl flex items-center gap-2">
+						<CardTitle className="flex items-center gap-2 text-2xl">
 							<Settings className="h-5 w-5" />
 							Settings
 						</CardTitle>
@@ -75,13 +172,13 @@ export default function AdminSettingsPage() {
 							Global feature flags for the auth server
 						</CardDescription>
 					</div>
-					<Button onClick={save} disabled={saving || loading} variant="default">
+					<Button onClick={save} disabled={saving || loading}>
 						{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
 					</Button>
 				</CardHeader>
 				<CardContent className="space-y-6">
 					{loading ? (
-						<div className="flex justify-center items-center h-32">
+						<div className="flex h-32 items-center justify-center">
 							<Loader2 className="h-8 w-8 animate-spin" />
 						</div>
 					) : (
@@ -91,7 +188,7 @@ export default function AdminSettingsPage() {
 								<Input
 									id="brandName"
 									value={brandName}
-									onChange={(e) => setBrandName(e.target.value)}
+									onChange={(event) => setBrandName(event.target.value)}
 									placeholder="Orbit Auth"
 								/>
 								<p className="text-sm text-muted-foreground">

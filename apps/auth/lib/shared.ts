@@ -1,4 +1,4 @@
-import type { ReadonlyURLSearchParams } from "next/navigation";
+type SearchParamsLike = Pick<URLSearchParams, "get">;
 
 const allowedCallbackSet: ReadonlySet<string> = new Set([
 	"/dashboard",
@@ -6,7 +6,7 @@ const allowedCallbackSet: ReadonlySet<string> = new Set([
 ]);
 
 export const getCallbackURL = (
-	queryParams: ReadonlyURLSearchParams,
+	queryParams: SearchParamsLike,
 ): string => {
 	const callbackUrl = queryParams.get("callbackUrl");
 	if (callbackUrl) {

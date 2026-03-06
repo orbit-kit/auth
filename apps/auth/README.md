@@ -1,6 +1,6 @@
 # Orbit Auth - OAuth 2.1 Provider
 
-An open-source, self-hosted Authentication-as-a-Service platform built with Next.js and Better Auth. This server acts as a central OAuth 2.1 provider for your applications.
+An open-source, self-hosted Authentication-as-a-Service platform built with TanStack Start and Better Auth. This server acts as a central OAuth 2.1 provider for your applications.
 
 ## Quick Start
 
@@ -9,7 +9,7 @@ An open-source, self-hosted Authentication-as-a-Service platform built with Next
 ```bash
 cd apps/auth
 bun install
-npm run dev
+bun run dev
 ```
 
 The auth server will run at http://localhost:5000
@@ -46,9 +46,9 @@ OAUTH_DISCOVERY_URL=http://localhost:5000/.well-known/openid-configuration
 ### 5. Start the Example Client (Port 3000)
 
 ```bash
-cd example/nextjs
+cd apps/examples/nextjs-betterauth
 bun install
-bun dev
+bun run dev
 ```
 
 The example client will run at http://localhost:3000

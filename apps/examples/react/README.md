@@ -5,7 +5,7 @@ A minimal React application demonstrating how to use `@orbit-kit/auth-sdk` for a
 ## Prerequisites
 
 - Node.js 18+
-- pnpm (or npm/bun)
+- Bun
 - Orbit Auth server running (see main repo)
 
 ## Setup
@@ -13,7 +13,7 @@ A minimal React application demonstrating how to use `@orbit-kit/auth-sdk` for a
 1. Install dependencies:
 
 ```bash
-pnpm install
+bun install
 ```
 
 2. Copy the environment file and configure:
@@ -33,7 +33,7 @@ VITE_ORBIT_CLIENT_SECRET=your-client-secret
 4. Start the development server:
 
 ```bash
-pnpm dev
+bun run dev
 ```
 
 5. Open http://localhost:5173

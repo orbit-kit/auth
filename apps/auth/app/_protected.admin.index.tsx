@@ -1,5 +1,5 @@
-"use client";
-
+import { useState } from "react";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import {
@@ -13,55 +13,32 @@ import {
 	UserCircle,
 	Users,
 } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Toaster, toast } from "sonner";
+import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
-import { authClient } from "@/lib/auth-client";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
-export default function Page() {
+export const Route = createFileRoute("/_protected/admin/")({
+	component: AdminUsersPage,
+});
+
+function AdminUsersPage() {
 	const queryClient = useQueryClient();
-	const router = useRouter();
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const [newUser, setNewUser] = useState({
 		email: "",
 		password: "",
 		name: "",
-		role: "user" as const,
+		role: "user" as "admin" | "user",
 	});
 	const [isLoading, setIsLoading] = useState<string | undefined>();
 	const [isBanDialogOpen, setIsBanDialogOpen] = useState(false);
@@ -86,12 +63,13 @@ export default function Page() {
 					throw: true,
 				},
 			);
+
 			return data?.users || [];
 		},
 	});
 
-	const handleCreateUser = async (e: React.FormEvent) => {
-		e.preventDefault();
+	const handleCreateUser = async (event: React.FormEvent) => {
+		event.preventDefault();
 		setIsLoading("create");
 		try {
 			await authClient.admin.createUser({
@@ -103,9 +81,7 @@ export default function Page() {
 			toast.success("User created successfully");
 			setNewUser({ email: "", password: "", name: "", role: "user" });
 			setIsDialogOpen(false);
-			queryClient.invalidateQueries({
-				queryKey: ["users"],
-			});
+			queryClient.invalidateQueries({ queryKey: ["users"] });
 		} catch (error: unknown) {
 			const message = error instanceof Error ? error.message : "Failed to create user";
 			toast.error(message);
@@ -119,9 +95,7 @@ export default function Page() {
 		try {
 			await authClient.admin.removeUser({ userId: id });
 			toast.success("User deleted successfully");
-			queryClient.invalidateQueries({
-				queryKey: ["users"],
-			});
+			queryClient.invalidateQueries({ queryKey: ["users"] });
 		} catch (error: unknown) {
 			const message = error instanceof Error ? error.message : "Failed to delete user";
 			toast.error(message);
@@ -148,7 +122,7 @@ export default function Page() {
 		try {
 			await authClient.admin.impersonateUser({ userId: id });
 			toast.success("Impersonated user");
-			router.push("/dashboard");
+			window.location.href = "/dashboard";
 		} catch (error: unknown) {
 			const message = error instanceof Error ? error.message : "Failed to impersonate user";
 			toast.error(message);
@@ -157,13 +131,14 @@ export default function Page() {
 		}
 	};
 
-	const handleBanUser = async (e: React.FormEvent) => {
-		e.preventDefault();
+	const handleBanUser = async (event: React.FormEvent) => {
+		event.preventDefault();
 		setIsLoading(`ban-${banForm.userId}`);
 		try {
 			if (!banForm.expirationDate) {
 				throw new Error("Expiration date is required");
 			}
+
 			await authClient.admin.banUser({
 				userId: banForm.userId,
 				banReason: banForm.reason,
@@ -171,9 +146,7 @@ export default function Page() {
 			});
 			toast.success("User banned successfully");
 			setIsBanDialogOpen(false);
-			queryClient.invalidateQueries({
-				queryKey: ["users"],
-			});
+			queryClient.invalidateQueries({ queryKey: ["users"] });
 		} catch (error: unknown) {
 			const message = error instanceof Error ? error.message : "Failed to ban user";
 			toast.error(message);
@@ -183,12 +156,9 @@ export default function Page() {
 	};
 
 	return (
-		<div className="container mx-auto p-4 space-y-8">
-			<Toaster richColors />
-
-			{/* Navigation Cards */}
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-				<Card className="bg-primary/5 border-primary/20">
+		<div className="container mx-auto space-y-8 p-4">
+			<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+				<Card className="border-primary/20 bg-primary/5">
 					<CardHeader className="pb-2">
 						<CardTitle className="flex items-center gap-2 text-lg">
 							<Users className="h-5 w-5" />
@@ -203,8 +173,8 @@ export default function Page() {
 					</CardContent>
 				</Card>
 
-				<Link href="/admin/oauth-clients">
-					<Card className="hover:bg-muted/50 transition-colors cursor-pointer h-full">
+				<Link to="/admin/oauth-clients">
+					<Card className="h-full cursor-pointer transition-colors hover:bg-muted/50">
 						<CardHeader className="pb-2">
 							<CardTitle className="flex items-center gap-2 text-lg">
 								<Key className="h-5 w-5" />
@@ -215,13 +185,13 @@ export default function Page() {
 							</CardDescription>
 						</CardHeader>
 						<CardContent>
-							<Badge variant="outline">Go to OAuth Clients →</Badge>
+							<Badge variant="outline">Go to OAuth Clients -&gt;</Badge>
 						</CardContent>
 					</Card>
 				</Link>
 
-				<Link href="/admin/settings">
-					<Card className="hover:bg-muted/50 transition-colors cursor-pointer h-full">
+				<Link to="/admin/settings">
+					<Card className="h-full cursor-pointer transition-colors hover:bg-muted/50">
 						<CardHeader className="pb-2">
 							<CardTitle className="flex items-center gap-2 text-lg">
 								<Settings className="h-5 w-5" />
@@ -232,7 +202,7 @@ export default function Page() {
 							</CardDescription>
 						</CardHeader>
 						<CardContent>
-							<Badge variant="outline">Go to Settings →</Badge>
+							<Badge variant="outline">Go to Settings -&gt;</Badge>
 						</CardContent>
 					</Card>
 				</Link>
@@ -261,8 +231,8 @@ export default function Page() {
 										id="email"
 										type="email"
 										value={newUser.email}
-										onChange={(e) =>
-											setNewUser({ ...newUser, email: e.target.value })
+										onChange={(event) =>
+											setNewUser({ ...newUser, email: event.target.value })
 										}
 										required
 									/>
@@ -273,8 +243,8 @@ export default function Page() {
 										id="password"
 										type="password"
 										value={newUser.password}
-										onChange={(e) =>
-											setNewUser({ ...newUser, password: e.target.value })
+										onChange={(event) =>
+											setNewUser({ ...newUser, password: event.target.value })
 										}
 										required
 									/>
@@ -284,8 +254,8 @@ export default function Page() {
 									<Input
 										id="name"
 										value={newUser.name}
-										onChange={(e) =>
-											setNewUser({ ...newUser, name: e.target.value })
+										onChange={(event) =>
+											setNewUser({ ...newUser, name: event.target.value })
 										}
 										required
 									/>
@@ -295,7 +265,7 @@ export default function Page() {
 									<Select
 										value={newUser.role}
 										onValueChange={(value: "admin" | "user") =>
-											setNewUser({ ...newUser, role: value as "user" })
+											setNewUser({ ...newUser, role: value })
 										}
 									>
 										<SelectTrigger>
@@ -335,8 +305,8 @@ export default function Page() {
 									<Input
 										id="reason"
 										value={banForm.reason}
-										onChange={(e) =>
-											setBanForm({ ...banForm, reason: e.target.value })
+										onChange={(event) =>
+											setBanForm({ ...banForm, reason: event.target.value })
 										}
 										required
 									/>
@@ -347,7 +317,7 @@ export default function Page() {
 										<PopoverTrigger asChild>
 											<Button
 												id="expirationDate"
-												variant={"outline"}
+												variant="outline"
 												className={cn(
 													"w-full justify-start text-left font-normal",
 													!banForm.expirationDate && "text-muted-foreground",
@@ -393,7 +363,7 @@ export default function Page() {
 				</CardHeader>
 				<CardContent>
 					{isUsersLoading ? (
-						<div className="flex justify-center items-center h-64">
+						<div className="flex h-64 items-center justify-center">
 							<Loader2 className="h-8 w-8 animate-spin" />
 						</div>
 					) : (
@@ -456,7 +426,7 @@ export default function Page() {
 														<Loader2 className="h-4 w-4 animate-spin" />
 													) : (
 														<>
-															<UserCircle className="h-4 w-4 mr-2" />
+															<UserCircle className="mr-2 h-4 w-4" />
 															Impersonate
 														</>
 													)}
@@ -473,14 +443,12 @@ export default function Page() {
 														if (user.banned) {
 															setIsLoading(`ban-${user.id}`);
 															await authClient.admin.unbanUser(
-																{
-																	userId: user.id,
-																},
+																{ userId: user.id },
 																{
 																	onError(context) {
 																		toast.error(
 																			context.error.message ||
-																			"Failed to unban user",
+																				"Failed to unban user",
 																		);
 																		setIsLoading(undefined);
 																	},

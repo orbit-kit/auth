@@ -6,8 +6,7 @@ Thanks for helping improve Orbit Auth.
 
 ### Prerequisites
 
-- Bun (recommended for the monorepo)
-- Node.js (some workspace scripts use `npm`)
+- Bun
 - Postgres (for `apps/auth`)
 
 ### Install
@@ -19,20 +18,20 @@ bun install
 ### Run the auth server
 
 ```bash
-npm run dev:auth
+bun run dev:auth
 ```
 
 ### Run docs
 
 ```bash
-npm run dev:docs
+bun run dev:docs
 ```
 
 ### Run example clients
 
 ```bash
-npm run dev:example-nextjs-betterauth
-npm run dev:example-react
+bun run dev:example-nextjs-betterauth
+bun run dev:example-react
 ```
 
 ## Code quality
@@ -40,13 +39,13 @@ npm run dev:example-react
 Typecheck:
 
 ```bash
-npm run check-types
+bun run check-types
 ```
 
 Build:
 
 ```bash
-npm run build
+bun run build
 ```
 
 ## Pull requests
@@ -54,4 +53,3 @@ npm run build
 - Keep PRs small and focused
 - Include screenshots for UI changes
 - Avoid committing secrets (`.env*` files are ignored)
-

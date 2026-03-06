@@ -1,54 +1,35 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { authClient } from "@/lib/auth-client";
+import { getSetupState } from "@/lib/auth-api";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { authClient } from "@/lib/auth-client";
 
-export default function SetupPage() {
-	const router = useRouter();
+export const Route = createFileRoute("/setup")({
+	beforeLoad: async () => {
+		const { isCompleted } = await getSetupState();
+
+		if (isCompleted) {
+			throw redirect({ to: "/sign-in" });
+		}
+	},
+	component: SetupPage,
+});
+
+function SetupPage() {
 	const [loading, setLoading] = useState(false);
-	const [isChecking, setIsChecking] = useState(true);
 	const [adminPath, setAdminPath] = useState("/admin");
 	const [adminEmail, setAdminEmail] = useState("");
 	const [adminPassword, setAdminPassword] = useState("");
 	const [adminName, setAdminName] = useState("");
 
-	useEffect(() => {
-		const checkSetup = async () => {
-			try {
-				const res = await fetch("/api/setup");
-				const data = await res.json();
-				if (data.isCompleted) {
-					router.push("/sign-in");
-				}
-			} catch (error) {
-				console.error("Failed to check setup status:", error);
-			} finally {
-				setIsChecking(false);
-			}
-		};
-		checkSetup();
-	}, [router]);
-
-	if (isChecking) {
-		return (
-			<div className="min-h-[80vh] flex items-center justify-center">
-				<Card className="w-full max-w-lg">
-					<CardContent className="flex justify-center items-center py-12">
-						<div className="animate-pulse">Checking setup status...</div>
-					</CardContent>
-				</Card>
-			</div>
-		);
-	}
-
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
+	const handleSubmit = async (event: React.FormEvent) => {
+		event.preventDefault();
 		setLoading(true);
 
 		if (adminPassword.length < 8) {
@@ -75,7 +56,6 @@ export default function SetupPage() {
 					features: {},
 				}),
 			});
-
 			const data = await response.json();
 
 			if (!response.ok) {
@@ -84,19 +64,14 @@ export default function SetupPage() {
 				return;
 			}
 
-			toast.success("Setup completed successfully!");
+			toast.success("Setup completed successfully");
 
 			const signInResult = await authClient.signIn.email({
 				email: adminEmail,
 				password: adminPassword,
 			});
 
-			if (signInResult.error) {
-				router.push("/sign-in");
-			} else {
-				router.push("/dashboard");
-			}
-			router.refresh();
+			window.location.href = signInResult.error ? "/sign-in" : "/dashboard";
 		} catch {
 			toast.error("An error occurred during setup");
 		} finally {
@@ -105,7 +80,7 @@ export default function SetupPage() {
 	};
 
 	return (
-		<div className="min-h-[80vh] flex items-center justify-center">
+		<div className="flex min-h-[80vh] items-center justify-center">
 			<Card className="w-full max-w-lg">
 				<CardHeader>
 					<CardTitle className="text-2xl">Setup Orbit Auth</CardTitle>
@@ -123,7 +98,7 @@ export default function SetupPage() {
 									type="text"
 									placeholder="/admin"
 									value={adminPath}
-									onChange={(e) => setAdminPath(e.target.value)}
+									onChange={(event) => setAdminPath(event.target.value)}
 									required
 								/>
 								<p className="text-xs text-muted-foreground">
@@ -137,7 +112,7 @@ export default function SetupPage() {
 									type="text"
 									placeholder="Admin"
 									value={adminName}
-									onChange={(e) => setAdminName(e.target.value)}
+									onChange={(event) => setAdminName(event.target.value)}
 									required
 								/>
 							</div>
@@ -148,7 +123,7 @@ export default function SetupPage() {
 									type="email"
 									placeholder="admin@example.com"
 									value={adminEmail}
-									onChange={(e) => setAdminEmail(e.target.value)}
+									onChange={(event) => setAdminEmail(event.target.value)}
 									required
 								/>
 							</div>
@@ -159,7 +134,7 @@ export default function SetupPage() {
 									type="password"
 									placeholder="Enter your password"
 									value={adminPassword}
-									onChange={(e) => setAdminPassword(e.target.value)}
+									onChange={(event) => setAdminPassword(event.target.value)}
 									required
 									minLength={8}
 								/>
