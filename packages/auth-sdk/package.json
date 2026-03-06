@@ -36,19 +36,19 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "types": "./dist/client/index.d.ts",
+      "types": "./src/client/index.ts",
       "default": "./dist/client/index.js"
     },
     "./react": {
-      "types": "./dist/react/index.d.ts",
+      "types": "./src/react/index.ts",
       "default": "./dist/react/index.js"
     },
     "./api": {
-      "types": "./dist/api/index.d.ts",
+      "types": "./src/api/index.ts",
       "default": "./dist/api/index.js"
     },
     "./core": {
-      "types": "./dist/core/index.d.ts",
+      "types": "./src/core/index.ts",
       "default": "./dist/core/index.js"
     },
     "./_generated/component.js": {
@@ -64,6 +64,19 @@
     "./convex.config": {
       "types": "./dist/component/convex.config.d.ts",
       "default": "./dist/component/convex.config.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "react": [
+        "src/react/index.ts"
+      ],
+      "api": [
+        "src/api/index.ts"
+      ],
+      "core": [
+        "src/core/index.ts"
+      ]
     }
   },
   "peerDependencies": {
@@ -96,6 +109,6 @@
     "typescript-eslint": "8.47.0",
     "vite": "7.2.6"
   },
-  "types": "./dist/client/index.d.ts",
+  "types": "./src/client/index.ts",
   "module": "./dist/client/index.js"
 }

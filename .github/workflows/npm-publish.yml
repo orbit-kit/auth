@@ -1,0 +1,59 @@
+name: npm-publish
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: npm-publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish-auth-sdk:
+    runs-on: ubuntu-latest
+    environment:
+      name: npm
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      - name: Upgrade npm for trusted publishing
+        run: npm install -g npm@11
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.0
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Validate tag matches package version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          PKG_VERSION=$(node -p "require('./packages/auth-sdk/package.json').version")
+          TAG_NAME="${GITHUB_REF#refs/tags/}"
+
+          if [ "$TAG_NAME" != "v$PKG_VERSION" ]; then
+            echo "Tag $TAG_NAME does not match packages/auth-sdk version v$PKG_VERSION"
+            exit 1
+          fi
+
+      - name: Build SDK package
+        run: bunx turbo run build --filter=@orbit-kit/auth-sdk
+
+      - name: Publish @orbit-kit/auth-sdk
+        working-directory: packages/auth-sdk
+        env:
+          NPM_CONFIG_PROVENANCE: true
+        run: npm publish --access public --provenance
